@@ -1,10 +1,24 @@
-﻿namespace BtoBInventoryAPI.Models
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace BtoBInventoryAPI.Models
 {
     public class Inventory
     {
-        public int Id { get; set; }
-        public string ProductId { get; set; }
-        public DateTime LastChecked { get; set; }
-        public bool IsNfcTag { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
+
+        [BsonElement("TagId")]
+        public string TagId { get; set; }
+
+        [BsonElement("ProductId")]
+        public int ProductId { get; set; }
+
+        [BsonElement("Product")]
+        public Product Product { get; set; }
+
+        [BsonElement("Quantity")]
+        public int Quantity { get; set; }
     }
 }

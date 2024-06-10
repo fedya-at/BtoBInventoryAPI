@@ -1,8 +1,9 @@
 ﻿using BtoBInventoryAPI.Models;
+using MongoDB.Bson;
 
 namespace BtoBInventoryAPI.Services
 {
-    public class InventoryService
+    public class InventoryService : IInventoryServices
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -16,7 +17,7 @@ namespace BtoBInventoryAPI.Services
             return await _unitOfWork.Inventories.GetAllInventoriesAsync();
         }
 
-        public async Task<Inventory> GetInventoryByIdAsync(int id)
+        public async Task<Inventory> GetInventoryByIdAsync(string id)
         {
             return await _unitOfWork.Inventories.GetInventoryByIdAsync(id);
         }
@@ -33,32 +34,13 @@ namespace BtoBInventoryAPI.Services
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task DeleteInventoryAsync(int id)
+        public async Task DeleteInventoryAsync(string id)
         {
             await _unitOfWork.Inventories.DeleteInventoryAsync(id);
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task<ScanResult> ScanNfcRfidAsync(ScanRequest scanRequest)
-        {
-            // Simulate the NFC/RFID scan process. You can replace this with actual NFC/RFID scanning logic.
-            var inventoryItem = await _unitOfWork.Inventories.GetInventoryByTagIdAsync(scanRequest.TagId);
-            if (inventoryItem == null)
-            {
-                return new ScanResult
-                {
-                    Success = false,
-                    Message = "Item not found."
-                };
-            }
 
-            return new ScanResult
-            {
-                Success = true,
-                Message = "Item scanned successfully.",
-                Inventory = inventoryItem
-            };
-        }
-    }
+     }
 }
 

@@ -2,7 +2,7 @@
 {
     public class ScanRequest
     {
-        public string TagId { get; set; }
-        public string TagType { get; set; }
+        public required string TagId { get; set; }
+        public required string TagType { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BtoBInventoryAPI.Models;
+using MongoDB.Bson;
 
 namespace BtoBInventoryAPI.Services
 {
@@ -16,7 +17,7 @@ namespace BtoBInventoryAPI.Services
             return await _unitOfWork.Products.GetAllProductsAsync();
         }
 
-        public async Task<Product> GetProductByIdAsync(int id)
+        public async Task<Product> GetProductByIdAsync(string id)
         {
             return await _unitOfWork.Products.GetProductByIdAsync(id);
         }
@@ -27,13 +28,13 @@ namespace BtoBInventoryAPI.Services
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task UpdateProductAsync(Product product)
+        public async Task UpdateProductAsync(Product product)   
         {
             await _unitOfWork.Products.UpdateProductAsync(product);
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task DeleteProductAsync(int id)
+        public async Task DeleteProductAsync(string id)
         {
             await _unitOfWork.Products.DeleteProductAsync(id);
             await _unitOfWork.CompleteAsync();

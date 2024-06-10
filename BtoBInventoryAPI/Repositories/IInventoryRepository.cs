@@ -1,14 +1,16 @@
 ﻿using BtoBInventoryAPI.Models;
+using MongoDB.Bson;
 
 namespace BtoBInventoryAPI.Repositories
 {
     public interface IInventoryRepository
     {
         Task<IEnumerable<Inventory>> GetAllInventoriesAsync();
-        Task<Inventory> GetInventoryByIdAsync(int id);
+        Task<Inventory> GetInventoryByIdAsync(string id);
+
         Task AddInventoryAsync(Inventory inventory);
         Task UpdateInventoryAsync(Inventory inventory);
-        Task DeleteInventoryAsync(int id);
+        Task DeleteInventoryAsync(string id);
         Task<Inventory> GetInventoryByTagIdAsync(string tagId);
     }
 }

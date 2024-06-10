@@ -1,6 +1,8 @@
 ﻿using BtoBInventoryAPI.Models;
 using BtoBInventoryAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using System.Threading.Tasks;
 
 namespace BtoBInventoryAPI.Controllers
 {
@@ -23,9 +25,15 @@ namespace BtoBInventoryAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductById(int id)
+        public async Task<IActionResult> GetProductById(string id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
+            ObjectId productId;
+            if (!ObjectId.TryParse(id, out productId))
+            {
+                return BadRequest("Invalid ObjectId format");
+            }
+
+            var product = await _productService.GetProductByIdAsync(productId.ToString());
             if (product == null)
             {
                 return NotFound();
@@ -40,13 +48,18 @@ namespace BtoBInventoryAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
+            if (string.IsNullOrEmpty(product.Id))
+            {
+                product.Id = ObjectId.GenerateNewId().ToString();
+            }
+
 
             await _productService.AddProductAsync(product);
-            return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
+            return CreatedAtAction(nameof(GetProductById), new { id = product.Id.ToString() }, product);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] Product product)
+        public async Task<IActionResult> UpdateProduct(string id, [FromBody] Product product)
         {
             if (id != product.Id || !ModelState.IsValid)
             {
@@ -63,18 +76,24 @@ namespace BtoBInventoryAPI.Controllers
             return NoContent();
         }
 
+
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(string id)
         {
-            var existingProduct = await _productService.GetProductByIdAsync(id);
+            ObjectId productId;
+            if (!ObjectId.TryParse(id, out productId))
+            {
+                return BadRequest("Invalid ObjectId format");
+            }
+
+            var existingProduct = await _productService.GetProductByIdAsync(productId.ToString());
             if (existingProduct == null)
             {
                 return NotFound();
             }
 
-            await _productService.DeleteProductAsync(id);
+            await _productService.DeleteProductAsync(productId.ToString());
             return NoContent();
         }
     }
 }
-

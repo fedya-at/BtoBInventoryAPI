@@ -2,6 +2,7 @@
 
 namespace BtoBInventoryAPI.Services
 {
+
     public interface IUnitOfWork : IDisposable
     {
         IProductRepository Products { get; }
@@ -9,4 +10,5 @@ namespace BtoBInventoryAPI.Services
 
         Task<int> CompleteAsync();
     }
+
 }

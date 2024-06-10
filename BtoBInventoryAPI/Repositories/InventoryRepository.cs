@@ -1,51 +1,52 @@
 ﻿using BtoBInventoryAPI.Data;
 using BtoBInventoryAPI.Models;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BtoBInventoryAPI.Repositories
 {
     public class InventoryRepository : IInventoryRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDatabaseContext _context;
 
-        public InventoryRepository(AppDbContext context)
+        public InventoryRepository(IDatabaseContext context)
         {
             _context = context;
         }
 
         public async Task<IEnumerable<Inventory>> GetAllInventoriesAsync()
         {
-            return await _context.Inventories.ToListAsync();
+            var cursor = await _context.Inventories.FindAsync(Builders<Inventory>.Filter.Empty);
+            return await cursor.ToListAsync();
         }
 
-        public async Task<Inventory> GetInventoryByIdAsync(int id)
+        public async Task<Inventory> GetInventoryByIdAsync(String id)
         {
-            return await _context.Inventories.FindAsync(id);
+            return await _context.Inventories.Find(i => i.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task AddInventoryAsync(Inventory inventory)
         {
-            await _context.Inventories.AddAsync(inventory);
+            await _context.Inventories.InsertOneAsync(inventory);
         }
 
         public async Task UpdateInventoryAsync(Inventory inventory)
         {
-            _context.Inventories.Update(inventory);
+            var filter = Builders<Inventory>.Filter.Eq(i => i.Id, inventory.Id);
+            await _context.Inventories.ReplaceOneAsync(filter, inventory);
         }
 
-        public async Task DeleteInventoryAsync(int id)
+        public async Task DeleteInventoryAsync(String id)
         {
-            var inventory = await _context.Inventories.FindAsync(id);
-            if (inventory != null)
-            {
-                _context.Inventories.Remove(inventory);
-            }
+            var filter = Builders<Inventory>.Filter.Eq(i => i.Id, id);
+            await _context.Inventories.DeleteOneAsync(filter);
         }
 
-        public async Task<Inventory> GetInventoryByTagIdAsync(string tagId)
+        public async Task<Inventory> GetInventoryByTagIdAsync(String tagId)
         {
-            return await _context.Inventories.FirstOrDefaultAsync(i => i.TagId == tagId);
+            return await _context.Inventories.Find(i => i.TagId == tagId).FirstOrDefaultAsync();
         }
     }
 }
-

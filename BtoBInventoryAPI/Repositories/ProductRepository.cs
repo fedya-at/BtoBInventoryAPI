@@ -1,49 +1,53 @@
 ﻿using BtoBInventoryAPI.Data;
 using BtoBInventoryAPI.Models;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BtoBInventoryAPI.Repositories
 {
     public class ProductRepository : IProductRepository
     {
+        private readonly IMongoCollection<Product> _productsCollection;
 
-        private readonly AppDbContext _context;
-
-        public ProductRepository(AppDbContext context)
+        public ProductRepository(IDatabaseContext databaseContext)
         {
-            _context = context;
+            _productsCollection = databaseContext.Products;
         }
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
-            return await _context.Products.ToListAsync();
+            var products = await _productsCollection.Find(_ => true).ToListAsync();
+            return products;
         }
 
-        public async Task<Product> GetProductByIdAsync(int id)
+        public async Task<Product> GetProductByIdAsync(string id)
         {
-            return await _context.Products.FindAsync(id);
+            var product = await _productsCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
+            return product;
         }
 
         public async Task AddProductAsync(Product product)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            await _productsCollection.InsertOneAsync(product);
         }
 
         public async Task UpdateProductAsync(Product product)
         {
-            _context.Entry(product).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            var filter = Builders<Product>.Filter.Eq(p => p.Id, product.Id);
+            await _productsCollection.ReplaceOneAsync(filter, product);
         }
 
-        public async Task DeleteProductAsync(int id)
+        public async Task DeleteProductAsync(string id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product != null)
-            {
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
-            }
+            var filter = Builders<Product>.Filter.Eq(p => p.Id, id);
+            await _productsCollection.DeleteOneAsync(filter);
+        }
+
+        public async Task<Product> GetProductByTagIdAsync(string tagId)
+        {
+            var product = await _productsCollection.Find(p => p.TagId == tagId).FirstOrDefaultAsync();
+            return product;
         }
     }
 }

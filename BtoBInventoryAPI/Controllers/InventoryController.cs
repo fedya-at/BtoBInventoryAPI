@@ -1,6 +1,7 @@
 ﻿using BtoBInventoryAPI.Models;
 using BtoBInventoryAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 
 namespace BtoBInventoryAPI.Controllers
 {
@@ -8,9 +9,9 @@ namespace BtoBInventoryAPI.Controllers
     [ApiController]
     public class InventoryController : ControllerBase
     {
-        private readonly InventoryService _inventoryService;
+        private readonly IInventoryServices _inventoryService;
 
-        public InventoryController(IInventoryService inventoryService)
+        public InventoryController(IInventoryServices inventoryService)
         {
             _inventoryService = inventoryService;
         }
@@ -23,7 +24,7 @@ namespace BtoBInventoryAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetInventoryById(int id)
+        public async Task<IActionResult> GetInventoryById(string id)
         {
             var inventory = await _inventoryService.GetInventoryByIdAsync(id);
             if (inventory == null)
@@ -46,7 +47,7 @@ namespace BtoBInventoryAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateInventory(int id, [FromBody] Inventory inventory)
+        public async Task<IActionResult> UpdateInventory(string id, [FromBody] Inventory inventory)
         {
             if (id != inventory.Id || !ModelState.IsValid)
             {
@@ -64,7 +65,7 @@ namespace BtoBInventoryAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteInventory(int id)
+        public async Task<IActionResult> DeleteInventory(string id)
         {
             var existingInventory = await _inventoryService.GetInventoryByIdAsync(id);
             if (existingInventory == null)
@@ -76,17 +77,7 @@ namespace BtoBInventoryAPI.Controllers
             return NoContent();
         }
 
-        [HttpPost("scan")]
-        public async Task<IActionResult> ScanNfcRfid([FromBody] ScanRequest scanRequest)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var result = await _inventoryService.ScanNfcRfidAsync(scanRequest);
-            return Ok(result);
-        }
+        
     }
 
 }

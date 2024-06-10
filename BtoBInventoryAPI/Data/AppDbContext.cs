@@ -1,20 +1,25 @@
 ﻿using BtoBInventoryAPI.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Reflection.Emit;
+using BtoBInventoryAPI.Settings;
+using MongoDB.Driver;
 
 namespace BtoBInventoryAPI.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IDatabaseContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        private readonly IMongoDatabase _database;
 
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Inventory> Inventories { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        public AppDbContext(IMongoClient client, IMongoDBSettings settings)
         {
-            base.OnModelCreating(modelBuilder);
+            _database = client.GetDatabase(settings.DatabaseName);
         }
+
+        public IMongoCollection<Product> Products => _database.GetCollection<Product>("Products");
+        public IMongoCollection<Inventory> Inventories => _database.GetCollection<Inventory>("Inventories");
+    }
+
+    public interface IDatabaseContext
+    {
+        IMongoCollection<Product> Products { get; }
+        IMongoCollection<Inventory> Inventories { get; }
     }
 }
