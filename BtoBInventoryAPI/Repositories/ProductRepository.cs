@@ -44,10 +44,15 @@ namespace BtoBInventoryAPI.Repositories
             await _productsCollection.DeleteOneAsync(filter);
         }
 
-        public async Task<Product> GetProductByTagIdAsync(string tagId)
+       
+        public async Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm)
         {
-            var product = await _productsCollection.Find(p => p.TagId == tagId).FirstOrDefaultAsync();
-            return product;
+            var filter = Builders<Product>.Filter.Or(
+                Builders<Product>.Filter.Regex("Name", new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                Builders<Product>.Filter.Regex("Description", new MongoDB.Bson.BsonRegularExpression(searchTerm, "i"))
+            );
+
+            return await _productsCollection.Find(filter).ToListAsync();
         }
     }
 }

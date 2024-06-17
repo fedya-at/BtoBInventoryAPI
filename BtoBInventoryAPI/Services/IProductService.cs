@@ -10,5 +10,7 @@ namespace BtoBInventoryAPI.Services
         Task AddProductAsync(Product product);
         Task UpdateProductAsync(Product product);
         Task DeleteProductAsync(string id);
+        Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm);
+
     }
 }

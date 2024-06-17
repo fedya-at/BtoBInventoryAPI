@@ -21,10 +21,11 @@ namespace BtoBInventoryAPI.Models
         [BsonElement("Price")]
         public decimal Price { get; set; }
 
-        [BsonElement("Stock")]
-        public int Stock { get; set; }
 
-        [BsonElement("TagId")]
-        public string TagId { get; set; }
+        [BsonElement("Category")]
+        public Category Category { get; set; }
+
+        [BsonElement("ScanNFC")]
+        public string ScanNFC { get; set; }
     }
 }

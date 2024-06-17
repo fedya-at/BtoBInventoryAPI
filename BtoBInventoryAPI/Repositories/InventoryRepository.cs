@@ -44,9 +44,6 @@ namespace BtoBInventoryAPI.Repositories
             await _context.Inventories.DeleteOneAsync(filter);
         }
 
-        public async Task<Inventory> GetInventoryByTagIdAsync(String tagId)
-        {
-            return await _context.Inventories.Find(i => i.TagId == tagId).FirstOrDefaultAsync();
-        }
+        
     }
 }

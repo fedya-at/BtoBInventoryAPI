@@ -11,6 +11,5 @@ namespace BtoBInventoryAPI.Repositories
         Task AddInventoryAsync(Inventory inventory);
         Task UpdateInventoryAsync(Inventory inventory);
         Task DeleteInventoryAsync(string id);
-        Task<Inventory> GetInventoryByTagIdAsync(string tagId);
     }
 }

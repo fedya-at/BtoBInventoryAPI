@@ -16,4 +16,20 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\assets\AirPods_Pro__2nd_generation__with_MagSafe_Case__USB_C_-removebg-preview.png" />
+    <None Include="wwwroot\assets\Apple_16-inch.png" />
+    <None Include="wwwroot\assets\Apple_iPad.png" />
+    <None Include="wwwroot\assets\Apple_iPhone_13.png" />
+    <None Include="wwwroot\assets\books.jpg" />
+    <None Include="wwwroot\assets\Canon_EOS_R5.png" />
+    <None Include="wwwroot\assets\Câmara.png" />
+    <None Include="wwwroot\assets\Headphones.png" />
+    <None Include="wwwroot\assets\How Long Do the Appliances Last in Your Home_.jpg" />
+    <None Include="wwwroot\assets\SAMSUNG_Galaxy_S21.png" />
+    <None Include="wwwroot\assets\Samsung_Galaxy_Tab_S7.png" />
+    <None Include="wwwroot\assets\Sony.png" />
+    <None Include="wwwroot\assets\XPS_13_Plus_Laptop.png" />
+  </ItemGroup>
+
 </Project>

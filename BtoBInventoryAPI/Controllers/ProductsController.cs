@@ -21,6 +21,31 @@ namespace BtoBInventoryAPI.Controllers
         public async Task<IActionResult> GetAllProducts()
         {
             var products = await _productService.GetAllProductsAsync();
+
+            return Ok(products);
+        }
+        [HttpGet("sorted")]
+        public async Task<IActionResult> GetProductsByCriteria(string sortBy, string sortOrder)
+        {
+            var products = await _productService.GetAllProductsAsync();
+
+            switch (sortBy?.ToLower())
+            {
+                case "name":
+                    products = sortOrder?.ToLower() == "desc" ?
+                        products.OrderByDescending(p => p.Name).ToList() :
+                        products.OrderBy(p => p.Name).ToList();
+                    break;
+                case "price":
+                    products = sortOrder?.ToLower() == "desc" ?
+                        products.OrderByDescending(p => p.Price).ToList() :
+                        products.OrderBy(p => p.Price).ToList();
+                    break;
+             
+                default:
+                    break;
+            }
+
             return Ok(products);
         }
 
@@ -94,6 +119,43 @@ namespace BtoBInventoryAPI.Controllers
 
             await _productService.DeleteProductAsync(productId.ToString());
             return NoContent();
+        }
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded");
+            }
+
+            var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "assets");
+            var filePath = Path.Combine(uploadPath, file.FileName);
+
+            try
+            {
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Return the relative URL to the client
+                return Ok(new { imageUrl = $"/assets/{file.FileName}" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex}");
+            }
+        }
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProducts(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return BadRequest("Search term cannot be empty");
+            }
+
+            var products = await _productService.SearchProductsAsync(searchTerm);
+            return Ok(products);
         }
     }
 }

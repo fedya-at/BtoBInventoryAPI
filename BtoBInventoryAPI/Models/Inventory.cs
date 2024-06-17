@@ -9,9 +9,7 @@ namespace BtoBInventoryAPI.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
-        [BsonElement("TagId")]
-        public string TagId { get; set; }
-
+   
         [BsonElement("ProductId")]
         public int ProductId { get; set; }
 
@@ -20,5 +18,11 @@ namespace BtoBInventoryAPI.Models
 
         [BsonElement("Quantity")]
         public int Quantity { get; set; }
+
+        [BsonElement("Category")]
+        public Category Category { get; set; }
+
+        [BsonElement("ScanNFC")]
+        public string ScanNFC { get; set; }
     }
 }

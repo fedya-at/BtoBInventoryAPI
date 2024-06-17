@@ -39,5 +39,11 @@ namespace BtoBInventoryAPI.Services
             await _unitOfWork.Products.DeleteProductAsync(id);
             await _unitOfWork.CompleteAsync();
         }
+
+        public async Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm)
+        {
+            return await _unitOfWork.Products.SearchProductsAsync(searchTerm);
+        }
+
     }
 }
