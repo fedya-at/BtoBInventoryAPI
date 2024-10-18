@@ -21,7 +21,6 @@ namespace BtoBInventoryAPI.Data
 
         public IMongoCollection<Category> Categories => _database.GetCollection<Category>("Categories");
     }
-
     public interface IDatabaseContext
     {
         IMongoCollection<Product> Products { get; }
@@ -32,4 +31,6 @@ namespace BtoBInventoryAPI.Data
 
         IMongoCollection<Category> Categories { get; }
     }
+
+
 }

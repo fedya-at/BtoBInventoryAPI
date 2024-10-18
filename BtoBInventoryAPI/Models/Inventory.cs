@@ -9,20 +9,12 @@ namespace BtoBInventoryAPI.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
-   
-        [BsonElement("ProductId")]
-        public int ProductId { get; set; }
 
-        [BsonElement("Product")]
-        public Product Product { get; set; }
+        [BsonElement("ProductId")]
+        public string ProductId { get; set; }
 
         [BsonElement("Quantity")]
         public int Quantity { get; set; }
 
-        [BsonElement("Category")]
-        public Category Category { get; set; }
-
-        [BsonElement("ScanNFC")]
-        public string ScanNFC { get; set; }
     }
 }

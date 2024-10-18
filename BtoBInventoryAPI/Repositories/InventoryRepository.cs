@@ -31,6 +31,43 @@ namespace BtoBInventoryAPI.Repositories
         {
             await _context.Inventories.InsertOneAsync(inventory);
         }
+        public async Task AddInventoryAsync(Inventory inventory, Product product)
+        {
+            using (var session = await _context.Inventories.Database.Client.StartSessionAsync())
+            {
+                session.StartTransaction();
+                try
+                {
+                    // Check if the product already exists
+                    var existingProduct = await _context.Products.Find(p => p.Id == product.Id).FirstOrDefaultAsync();
+                    if (existingProduct == null)
+                    {
+                        // Insert the new product if it doesn't exist
+                        await _context.Products.InsertOneAsync(session, product);
+                    }
+                    else
+                    {
+                         // Update the existing product if it does exist
+                        var filter = Builders<Product>.Filter.Eq(p => p.Id, product.Id);
+                        await _context.Products.ReplaceOneAsync(session, filter, product);
+                        
+                    }
+
+                    // Ensure the inventory's ProductId is set to the existing or new product's ID
+                    inventory.ProductId = product.Id;
+
+                    // Insert the new inventory
+                    await _context.Inventories.InsertOneAsync(session, inventory);
+
+                    await session.CommitTransactionAsync();
+                }
+                catch
+                {
+                    await session.AbortTransactionAsync();
+                    throw;
+                }
+            }
+        }
 
         public async Task UpdateInventoryAsync(Inventory inventory)
         {

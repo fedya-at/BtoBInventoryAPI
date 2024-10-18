@@ -33,18 +33,19 @@ namespace BtoBInventoryAPI.Controllers
             }
             return Ok(inventory);
         }
-
         [HttpPost]
-        public async Task<IActionResult> AddInventory([FromBody] Inventory inventory)
+        public async Task<IActionResult> AddInventory([FromBody] InventoryProductRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            await _inventoryService.AddInventoryAsync(inventory);
-            return CreatedAtAction(nameof(GetInventoryById), new { id = inventory.Id }, inventory);
+            await _inventoryService.AddInventoryAsync(request.Inventory, request.Product);
+            return CreatedAtAction(nameof(GetInventoryById), new { id = request.Inventory.Id }, request.Inventory);
         }
+
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateInventory(string id, [FromBody] Inventory inventory)

@@ -1,8 +1,6 @@
 ﻿using BtoBInventoryAPI.Data;
 using BtoBInventoryAPI.Models;
 using MongoDB.Driver;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace BtoBInventoryAPI.Repositories
 {
@@ -26,6 +24,23 @@ namespace BtoBInventoryAPI.Repositories
             var product = await _productsCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
             return product;
         }
+
+        public async Task<double> GetProductPriceByIdAsync(string id)
+        {
+            var price = await _productsCollection
+                .Find(p => p.Id == id)
+                .Project(p => p.Price) 
+                .FirstOrDefaultAsync();
+
+
+            return (double)price;
+        }
+        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(string categoryId)
+        {
+            var filter = Builders<Product>.Filter.Eq(p => p.Category.Id, categoryId);
+            return await _productsCollection.Find(filter).ToListAsync();
+        }
+
 
         public async Task AddProductAsync(Product product)
         {

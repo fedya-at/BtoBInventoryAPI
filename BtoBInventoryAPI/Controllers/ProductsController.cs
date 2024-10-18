@@ -41,13 +41,20 @@ namespace BtoBInventoryAPI.Controllers
                         products.OrderByDescending(p => p.Price).ToList() :
                         products.OrderBy(p => p.Price).ToList();
                     break;
-             
+                case "categoryname": // Assuming you want to sort by categoryName
+                    products = sortOrder?.ToLower() == "desc" ?
+                        products.OrderByDescending(p => p.Category.NameCategory).ToList() :
+                        products.OrderBy(p => p.Category.NameCategory).ToList();
+                    break;
+
                 default:
                     break;
             }
 
             return Ok(products);
         }
+
+      
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProductById(string id)
@@ -64,6 +71,20 @@ namespace BtoBInventoryAPI.Controllers
                 return NotFound();
             }
             return Ok(product);
+        }
+
+        [HttpGet("{id}/price")]
+        public async Task<IActionResult> GetProductPriceById(string id)
+        {
+            ObjectId productId;
+            if (!ObjectId.TryParse(id, out productId))
+            {
+                return BadRequest("Invalid ObjectId format");
+            }
+
+            var price = await _productService.GetProductPriceByIdAsync(productId.ToString());
+            return Ok(price);
+           
         }
 
         [HttpPost]
@@ -120,32 +141,7 @@ namespace BtoBInventoryAPI.Controllers
             await _productService.DeleteProductAsync(productId.ToString());
             return NoContent();
         }
-        [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile(IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                return BadRequest("No file uploaded");
-            }
-
-            var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "assets");
-            var filePath = Path.Combine(uploadPath, file.FileName);
-
-            try
-            {
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                // Return the relative URL to the client
-                return Ok(new { imageUrl = $"/assets/{file.FileName}" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex}");
-            }
-        }
+       
         [HttpGet("search")]
         public async Task<IActionResult> SearchProducts(string searchTerm)
         {
@@ -157,5 +153,40 @@ namespace BtoBInventoryAPI.Controllers
             var products = await _productService.SearchProductsAsync(searchTerm);
             return Ok(products);
         }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            // Log the file path for debugging
+            var imageUrl = $"/Images/{uniqueFileName}";
+            Console.WriteLine($"Image URL: {imageUrl}");
+
+            return Ok(new { imageUrl });
+        }
+
+        [HttpGet("category/{categoryId}")]
+        public async Task<IActionResult> GetProductsByCategory(string categoryId)
+        {
+            var products = await _productService.GetProductsByCategoryAsync(categoryId);
+            return Ok(products);
+        }
+
+
     }
 }

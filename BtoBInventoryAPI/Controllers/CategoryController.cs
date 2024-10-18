@@ -1,5 +1,6 @@
 ﻿using BtoBInventoryAPI.Models;
 using BtoBInventoryAPI.Services;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BtoBInventoryAPI.Controllers
@@ -10,6 +11,7 @@ namespace BtoBInventoryAPI.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public CategoryController(ICategoryService categoryService)
         {
@@ -83,27 +85,28 @@ namespace BtoBInventoryAPI.Controllers
         {
             if (file == null || file.Length == 0)
             {
-                return BadRequest("No file uploaded");
+                return BadRequest("No file uploaded.");
             }
 
-            var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "assets");
-            var filePath = Path.Combine(uploadPath, file.FileName);
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
+            Directory.CreateDirectory(uploadsFolder);
 
-            try
+            var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
+                await file.CopyToAsync(fileStream);
+            }
 
-                // Return the relative URL to the client
-                return Ok(new { imageUrl = $"/assets/{file.FileName}" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex}");
-            }
+            // Log the file path for debugging
+            var imageUrl = $"/Images/{uniqueFileName}";
+            Console.WriteLine($"Image URL: {imageUrl}");
+
+            return Ok(new { imageUrl });
         }
+
+
     }
 }
 
